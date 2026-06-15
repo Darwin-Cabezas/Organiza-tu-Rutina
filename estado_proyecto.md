@@ -26,7 +26,6 @@ kanban
     Desarrollar el CRUD de rutinas conectando React con la API MySQL
     Implementar notificaciones locales con Capacitor Local Notifications
     Implementar sincronización con Capacitor Calendar
-  In Progress
     Definición del diseño de UI/UX (Corrección de typos y flujo de layouts)
   Done
     Analizar propuesta del proyecto
