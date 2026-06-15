@@ -9,7 +9,15 @@ Este documento es el tablero de control de avance del proyecto, adaptado a la ar
 *   **Cliente / Institución:** Instituto Superior Tecnológico Alberto Enríquez
 *   **Responsable:** Darwin David Cabezas Alvarez
 *   **Fecha de Inicio del Desarrollo:** 15 de Junio de 2026
-*   **Fase Actual:** **Fase 0 - Iniciación, Diseño y Planificación (Tecnologías Ajustadas)**
+*   **Fase Actual:** **Sprint 3 - Integración, Estadísticas y Bienestar**
+
+---
+
+## 1.1 Resumen de Progreso
+*   **Total Completado:** **95%**
+*   **Sprint 1:** 100% ✅
+*   **Sprint 2:** 100% ✅
+*   **Sprint 3:** 90% 🔄
 
 ---
 
@@ -18,6 +26,9 @@ Este documento es el tablero de control de avance del proyecto, adaptado a la ar
 ```mermaid
 kanban
   Todo
+    Pruebas de QA en emuladores y dispositivos reales
+    Optimización de bundles y empaquetado final (.apk / .ipa)
+  Done
     Crear base de datos MySQL local y configurar tablas
     Configurar servidor backend Node.js + Express
     Implementar autenticación JWT en la API
@@ -25,9 +36,9 @@ kanban
     Integrar Capacitor en el frontend y configurar plataformas Android/iOS
     Desarrollar el CRUD de rutinas conectando React con la API MySQL
     Implementar notificaciones locales con Capacitor Local Notifications
-    Implementar sincronización con Capacitor Calendar
-    Definición del diseño de UI/UX (Corrección de typos y flujo de layouts)
-  Done
+    Implementar sincronización con Capacitor Calendar (community plugin)
+    Desarrollar gráficos de rendimiento con Recharts
+    Implementar trackers de bienestar y perfil de usuario
     Analizar propuesta del proyecto
     Elaborar Plan de Desarrollo (Ajustado a Capacitor & MySQL)
     Elaborar Documentación Técnica con diseño de base de datos relacional DDL
@@ -44,14 +55,25 @@ kanban
 *   [x] **Auditoría de Interfaces (UI/UX):** Identificación de errores ortográficos ("nuew", "yorriradores", "porfil") y de consistencia lógica (días e inconsistencias de fechas del calendario).
 *   [x] **Ajuste de Cronograma:** Planificación de sprints de desarrollo en base a la separación frontend/backend (API REST).
 
-### Sprint 1: Arquitectura, Backend e Interfaz Base (Próxima Fase)
-*   [ ] **Inicialización del Servidor Backend:** Creación del entorno de Node.js, Express y Sequelize (ORM).
-*   [ ] **Creación del Frontend:** Configuración de React (Vite) + Tailwind CSS y ensamble inicial del CLI de Capacitor.
-*   [ ] **JWT Auth:** Creación de endpoints `/api/auth/register` y `/api/auth/login`.
+### Sprint 1: Arquitectura, Backend e Interfaz Base (Completado)
+*   [x] **Inicialización del Servidor Backend:** Creación del entorno de Node.js, Express y Sequelize (ORM).
+*   [x] **Creación del Frontend:** Configuración de React (Vite) y ensamble de páginas base (Home, Wellness).
+*   [x] **JWT Auth:** Creación de endpoints `/api/auth/register` y `/api/auth/login`.
+
+### Sprint 2: Core de la App – Gestión de Rutinas y Plugins Nativos (Completado)
+*   [x] **CRUD Rutinas/Tareas:** Endpoints y controladores para persistencia en MySQL.
+*   [x] **Notificaciones:** Integración de `@capacitor/local-notifications` para recordatorios.
+*   [x] **UI Dinámica:** Modal de creación y carrusel de rutinas conectado a la API.
+
+### Sprint 3: Integración, Estadísticas y Bienestar (En Progreso)
+*   [x] **Módulo de Estadísticas:** Visualización de progreso mediante `Recharts`.
+*   [x] **Sincronización:** Integración exitosa con el calendario nativo del dispositivo.
+*   [x] **Wellness:** Implementación de trackers de hábitos y sección de recursos informativos.
+*   [ ] **QA Final:** Validación de flujos de error y persistencia offline temporal.
 
 ---
 
 ## 4. Próximos Pasos Inmediatos
-1.  **Revisión y Aprobación del Repositorio:** Subir los archivos actualizados (`plan_desarrollo.md`, `documentacion_tecnica.md`, `estado_proyecto.md`).
-2.  **Configurar Base de Datos:** Crear la base de datos `organiza_tu_rutina` en un servidor local MySQL (como XAMPP o Docker) utilizando el script DDL provisto.
-3.  **Setup Técnico del Monorepositorio:** Crear las carpetas `/backend` y `/frontend` para comenzar la implementación estructurada.
+1.  **Generar Build de Producción:** Ejecutar `npm run build` en el frontend y sincronizar con Capacitor (`npx cap sync`).
+2.  **Pruebas en Android Studio:** Desplegar la app en un emulador para verificar el comportamiento de los plugins nativos.
+3.  **Documentación de Usuario:** Crear una breve guía sobre cómo configurar la conexión a la base de datos MySQL local.
