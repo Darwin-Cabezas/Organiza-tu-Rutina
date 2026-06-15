@@ -14,10 +14,10 @@ Este documento es el tablero de control de avance del proyecto, adaptado a la ar
 ---
 
 ## 1.1 Resumen de Progreso
-*   **Total Completado:** **95%**
+*   **Total Completado:** **100%**
 *   **Sprint 1:** 100% ✅
 *   **Sprint 2:** 100% ✅
-*   **Sprint 3:** 90% 🔄
+*   **Sprint 3:** 100% ✅
 
 ---
 
@@ -25,9 +25,6 @@ Este documento es el tablero de control de avance del proyecto, adaptado a la ar
 
 ```mermaid
 kanban
-  Todo
-    Pruebas de QA en emuladores y dispositivos reales
-    Optimización de bundles y empaquetado final (.apk / .ipa)
   Done
     Crear base de datos MySQL local y configurar tablas
     Configurar servidor backend Node.js + Express
@@ -43,6 +40,8 @@ kanban
     Elaborar Plan de Desarrollo (Ajustado a Capacitor & MySQL)
     Elaborar Documentación Técnica con diseño de base de datos relacional DDL
     Auditar capturas de interfaz de usuario (Feedback de UX/UI)
+    Pruebas de QA en emuladores y dispositivos reales
+    Optimización de bundles y empaquetado final (.apk / .ipa)
 ```
 
 ---

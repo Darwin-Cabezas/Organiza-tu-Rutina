@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Heart, Share2, BookOpen, User, CheckCircle2, Award, ExternalLink, GraduationCap } from 'lucide-react';
+import { Heart, Share2, BookOpen, User, CheckCircle2, Award, ExternalLink, GraduationCap, Edit, Save, XCircle } from 'lucide-react';
 import api from '../services/api';
 
 interface WellnessResource {
@@ -17,6 +17,16 @@ const Wellness: React.FC = () => {
   const [sleepChecked, setSleepChecked] = useState(false);
 
   const [sharedId, setSharedId] = useState<number | null>(null);
+
+  // Profile state
+  const [isEditingProfile, setIsEditingProfile] = useState(false);
+  const [profileName, setProfileName] = useState('Darwin David Cabezas Alvarez');
+  const [profileEmail, setProfileEmail] = useState('darwin.cabezas@example.com'); // Assuming an email for the profile
+  const [profileImageUrl, setProfileImageUrl] = useState('https://via.placeholder.com/150'); // Placeholder image
+  const [personalData, setPersonalData] = useState('Estudiante de Ingeniería en Desarrollo de Software con pasión por las aplicaciones móviles y el bienestar.');
+  const [oldPassword, setOldPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmNewPassword, setConfirmNewPassword] = useState('');
 
   const resources: WellnessResource[] = [
     {
@@ -54,13 +64,65 @@ const Wellness: React.FC = () => {
           url: window.location.href,
         });
       } else {
-        throw new Error('Share API not supported');
+        // Fallback: Copy to clipboard if Web Share API is missing
+        await navigator.clipboard.writeText(`${resource.title}: ${resource.description}`);
+        setSharedId(resource.id);
+        setTimeout(() => setSharedId(null), 3000);
       }
     } catch (err) {
-      console.log('Using fallback sharing mechanism');
-      setSharedId(resource.id);
-      setTimeout(() => setSharedId(null), 3000);
+      console.error('Error sharing/copying resource:', err);
     }
+  };
+
+  const handleSaveProfile = async () => {
+    // Simulate API call to update profile
+    console.log('Guardando cambios del perfil...');
+    console.log('Nombre:', profileName);
+    console.log('Email:', profileEmail);
+    console.log('URL Imagen:', profileImageUrl);
+    console.log('Datos Personales:', personalData);
+
+    if (newPassword) {
+      if (newPassword !== confirmNewPassword) {
+        alert('Las nuevas contraseñas no coinciden.');
+        return;
+      }
+      // Simulate API call to change password
+      console.log('Cambiando contraseña...');
+      console.log('Contraseña Antigua:', oldPassword);
+      console.log('Nueva Contraseña:', newPassword);
+      // In a real app, you'd send oldPassword and newPassword to the backend
+      // and handle hashing and validation there.
+    }
+
+    // In a real application, you would make API calls here:
+    // try {
+    //   await api.put('/api/user/profile', { name: profileName, email: profileEmail, imageUrl: profileImageUrl, personalData });
+    //   if (newPassword) {
+    //     await api.post('/api/user/change-password', { oldPassword, newPassword });
+    //   }
+    //   alert('Perfil actualizado exitosamente!');
+    //   setIsEditingProfile(false);
+    // } catch (error) {
+    //   console.error('Error al actualizar el perfil:', error);
+    //   alert('Hubo un error al actualizar el perfil.');
+    // }
+
+    alert('Perfil actualizado exitosamente (simulado)!');
+    setIsEditingProfile(false);
+    // Clear password fields after saving
+    setOldPassword('');
+    setNewPassword('');
+    setConfirmNewPassword('');
+  };
+
+  const handleCancelEdit = () => {
+    setIsEditingProfile(false);
+    // Reset form fields to original profile data or last saved state
+    // For now, just clear password fields
+    setOldPassword('');
+    setNewPassword('');
+    setConfirmNewPassword('');
   };
 
   return (
@@ -291,6 +353,10 @@ const Wellness: React.FC = () => {
               <GraduationCap size={14} />
               <span>Instituto Superior Tecnológico Alberto Enríquez</span>
             </p>
+            <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: '6px', marginTop: '2px' }}>
+              <User size={14} />
+              <span>{profileEmail}</span>
+            </p>
           </div>
         </div>
 
@@ -304,7 +370,228 @@ const Wellness: React.FC = () => {
             <p style={{ fontSize: '0.9rem', fontWeight: 700, color: 'var(--color-blue)', marginTop: '2px' }}>Organiza tu Rutina v1.0</p>
           </div>
         </div>
+        <button
+          onClick={() => setIsEditingProfile(true)}
+          style={{
+            marginTop: '20px',
+            width: '100%',
+            padding: '10px 15px',
+            borderRadius: 'var(--radius-md)',
+            background: 'var(--color-blue)',
+            color: '#fff',
+            border: 'none',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '8px',
+            fontWeight: 600,
+            transition: 'var(--transition-fast)'
+          }}
+        >
+          <Edit size={18} />
+          Editar Perfil
+        </button>
       </div>
+
+      {/* Profile Configuration Section (Conditional Rendering) */}
+      {isEditingProfile && (
+        <div className="glass-panel" style={{
+          borderRadius: 'var(--radius-lg)',
+          padding: '24px',
+          border: '1px solid rgba(192, 132, 252, 0.15)',
+          background: 'radial-gradient(circle at 100% 0%, rgba(192, 132, 252, 0.05) 0%, transparent 80%)',
+          marginTop: '24px'
+        }}>
+          <h3 style={{ fontSize: '1.1rem', marginBottom: '20px', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <User size={20} color="var(--color-primary)" />
+            Configuración del Perfil
+          </h3>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+            {/* Edit Name */}
+            <div>
+              <label style={{ display: 'block', marginBottom: '5px', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Nombre:</label>
+              <input
+                type="text"
+                value={profileName}
+                onChange={(e) => setProfileName(e.target.value)}
+                style={{
+                  width: '100%',
+                  padding: '10px',
+                  borderRadius: 'var(--radius-sm)',
+                  border: '1px solid var(--glass-border)',
+                  background: 'rgba(255, 255, 255, 0.05)',
+                  color: 'var(--text-primary)',
+                  fontSize: '0.9rem'
+                }}
+              />
+            </div>
+
+            {/* Edit Email */}
+            <div>
+              <label style={{ display: 'block', marginBottom: '5px', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Email:</label>
+              <input
+                type="email"
+                value={profileEmail}
+                onChange={(e) => setProfileEmail(e.target.value)}
+                style={{
+                  width: '100%',
+                  padding: '10px',
+                  borderRadius: 'var(--radius-sm)',
+                  border: '1px solid var(--glass-border)',
+                  background: 'rgba(255, 255, 255, 0.05)',
+                  color: 'var(--text-primary)',
+                  fontSize: '0.9rem'
+                }}
+              />
+            </div>
+
+            {/* Edit Profile Image URL */}
+            <div>
+              <label style={{ display: 'block', marginBottom: '5px', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>URL Imagen de Perfil:</label>
+              <input
+                type="text"
+                value={profileImageUrl}
+                onChange={(e) => setProfileImageUrl(e.target.value)}
+                style={{
+                  width: '100%',
+                  padding: '10px',
+                  borderRadius: 'var(--radius-sm)',
+                  border: '1px solid var(--glass-border)',
+                  background: 'rgba(255, 255, 255, 0.05)',
+                  color: 'var(--text-primary)',
+                  fontSize: '0.9rem'
+                }}
+              />
+            </div>
+
+            {/* Edit Personal Data */}
+            <div>
+              <label style={{ display: 'block', marginBottom: '5px', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Datos Personales:</label>
+              <textarea
+                value={personalData}
+                onChange={(e) => setPersonalData(e.target.value)}
+                rows={4}
+                style={{
+                  width: '100%',
+                  padding: '10px',
+                  borderRadius: 'var(--radius-sm)',
+                  border: '1px solid var(--glass-border)',
+                  background: 'rgba(255, 255, 255, 0.05)',
+                  color: 'var(--text-primary)',
+                  fontSize: '0.9rem',
+                  resize: 'vertical'
+                }}
+              ></textarea>
+            </div>
+
+            {/* Change Password */}
+            <div style={{ marginTop: '10px', borderTop: '1px solid var(--glass-border)', paddingTop: '15px' }}>
+              <h4 style={{ fontSize: '1rem', marginBottom: '15px', fontWeight: 600, color: 'var(--color-primary)' }}>Cambiar Contraseña</h4>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                <div>
+                  <label style={{ display: 'block', marginBottom: '5px', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Contraseña Actual:</label>
+                  <input
+                    type="password"
+                    value={oldPassword}
+                    onChange={(e) => setOldPassword(e.target.value)}
+                    style={{
+                      width: '100%',
+                      padding: '10px',
+                      borderRadius: 'var(--radius-sm)',
+                      border: '1px solid var(--glass-border)',
+                      background: 'rgba(255, 255, 255, 0.05)',
+                      color: 'var(--text-primary)',
+                      fontSize: '0.9rem'
+                    }}
+                  />
+                </div>
+                <div>
+                  <label style={{ display: 'block', marginBottom: '5px', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Nueva Contraseña:</label>
+                  <input
+                    type="password"
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                    style={{
+                      width: '100%',
+                      padding: '10px',
+                      borderRadius: 'var(--radius-sm)',
+                      border: '1px solid var(--glass-border)',
+                      background: 'rgba(255, 255, 255, 0.05)',
+                      color: 'var(--text-primary)',
+                      fontSize: '0.9rem'
+                    }}
+                  />
+                </div>
+                <div>
+                  <label style={{ display: 'block', marginBottom: '5px', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Confirmar Nueva Contraseña:</label>
+                  <input
+                    type="password"
+                    value={confirmNewPassword}
+                    onChange={(e) => setConfirmNewPassword(e.target.value)}
+                    style={{
+                      width: '100%',
+                      padding: '10px',
+                      borderRadius: 'var(--radius-sm)',
+                      border: '1px solid var(--glass-border)',
+                      background: 'rgba(255, 255, 255, 0.05)',
+                      color: 'var(--text-primary)',
+                      fontSize: '0.9rem'
+                    }}
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Action Buttons */}
+            <div style={{ display: 'flex', gap: '10px', marginTop: '20px' }}>
+              <button
+                onClick={handleSaveProfile}
+                style={{
+                  flex: 1,
+                  padding: '10px 15px',
+                  borderRadius: 'var(--radius-md)',
+                  background: 'var(--color-mint)',
+                  color: '#050508',
+                  border: 'none',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '8px',
+                  fontWeight: 600,
+                  transition: 'var(--transition-fast)'
+                }}
+              >
+                <Save size={18} />
+                Guardar Cambios
+              </button>
+              <button
+                onClick={handleCancelEdit}
+                style={{
+                  flex: 1,
+                  padding: '10px 15px',
+                  borderRadius: 'var(--radius-md)',
+                  background: 'rgba(255, 255, 255, 0.1)',
+                  color: 'var(--text-primary)',
+                  border: '1px solid var(--glass-border)',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '8px',
+                  fontWeight: 600,
+                  transition: 'var(--transition-fast)'
+                }}
+              >
+                <XCircle size={18} />
+                Cancelar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Footer Title (Addressing UX Maquette Correction) */}
       <footer style={{
@@ -324,6 +611,30 @@ const Wellness: React.FC = () => {
         </span>
       </footer>
     </div>
+  );
+};
+
+export default Wellness;
+      </div >
+
+  {/* Footer Title (Addressing UX Maquette Correction) */ }
+  < footer style = {{
+  textAlign: 'center',
+    padding: '10px 0 20px',
+      borderTop: '1px solid var(--glass-border)',
+        marginTop: '10px'
+}}>
+  <span style={{
+    fontSize: '0.75rem',
+    fontWeight: 700,
+    letterSpacing: '0.2em',
+    color: 'var(--text-muted)',
+    textTransform: 'uppercase'
+  }}>
+    PROPUESTA & PERFIL
+  </span>
+      </footer >
+    </div >
   );
 };
 
