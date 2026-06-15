@@ -615,27 +615,3 @@ const Wellness: React.FC = () => {
 };
 
 export default Wellness;
-      </div >
-
-  {/* Footer Title (Addressing UX Maquette Correction) */ }
-  < footer style = {{
-  textAlign: 'center',
-    padding: '10px 0 20px',
-      borderTop: '1px solid var(--glass-border)',
-        marginTop: '10px'
-}}>
-  <span style={{
-    fontSize: '0.75rem',
-    fontWeight: 700,
-    letterSpacing: '0.2em',
-    color: 'var(--text-muted)',
-    textTransform: 'uppercase'
-  }}>
-    PROPUESTA & PERFIL
-  </span>
-      </footer >
-    </div >
-  );
-};
-
-export default Wellness;
