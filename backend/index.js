@@ -3,6 +3,7 @@ const cors = require('cors');
 require('dotenv').config();
 const sequelize = require('./config/database');
 
+const Usuario = require('./models/Usuario'); // Importar el modelo Usuario
 // Importación de rutas
 const authRoutes = require('./routes/authRoutes');
 const routineRoutes = require('./routes/routineRoutes');

@@ -64,6 +64,8 @@ erDiagram
         string email
         string password_hash
         datetime fecha_registro
+        string profile_image_url
+        text personal_data
     }
 
     RUTINAS {
@@ -106,7 +108,9 @@ CREATE TABLE usuarios (
     nombre VARCHAR(100) NOT NULL,
     email VARCHAR(150) UNIQUE NOT NULL,
     password_hash VARCHAR(255) NOT NULL,
-    fecha_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    fecha_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    profile_image_url VARCHAR(255) DEFAULT 'https://via.placeholder.com/150',
+    personal_data TEXT
 ) ENGINE=InnoDB;
 
 -- Tabla de Rutinas

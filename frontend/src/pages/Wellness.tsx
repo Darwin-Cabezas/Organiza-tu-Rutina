@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Heart, Share2, BookOpen, User, CheckCircle2, Award, ExternalLink, GraduationCap, Edit, Save, XCircle } from 'lucide-react';
 import api from '../services/api';
 
@@ -19,11 +19,12 @@ const Wellness: React.FC = () => {
   const [sharedId, setSharedId] = useState<number | null>(null);
 
   // Profile state
+  const [initialProfileData, setInitialProfileData] = useState({ name: '', email: '', imageUrl: '', personalData: '' });
   const [isEditingProfile, setIsEditingProfile] = useState(false);
-  const [profileName, setProfileName] = useState('Darwin David Cabezas Alvarez');
-  const [profileEmail, setProfileEmail] = useState('darwin.cabezas@example.com'); // Assuming an email for the profile
-  const [profileImageUrl, setProfileImageUrl] = useState('https://via.placeholder.com/150'); // Placeholder image
-  const [personalData, setPersonalData] = useState('Estudiante de Ingeniería en Desarrollo de Software con pasión por las aplicaciones móviles y el bienestar.');
+  const [profileName, setProfileName] = useState('');
+  const [profileEmail, setProfileEmail] = useState('');
+  const [profileImageUrl, setProfileImageUrl] = useState('https://via.placeholder.com/150');
+  const [personalData, setPersonalData] = useState('');
   const [oldPassword, setOldPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmNewPassword, setConfirmNewPassword] = useState('');
@@ -74,52 +75,65 @@ const Wellness: React.FC = () => {
     }
   };
 
-  const handleSaveProfile = async () => {
-    // Simulate API call to update profile
-    console.log('Guardando cambios del perfil...');
-    console.log('Nombre:', profileName);
-    console.log('Email:', profileEmail);
-    console.log('URL Imagen:', profileImageUrl);
-    console.log('Datos Personales:', personalData);
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const response = await api.get('/auth/profile');
+        const userData = {
+          name: response.data.nombre,
+          email: response.data.email,
+          imageUrl: response.data.profile_image_url || 'https://via.placeholder.com/150/C084FC/050508?text=DC',
+          personalData: response.data.personal_data || '',
+        };
 
-    if (newPassword) {
-      if (newPassword !== confirmNewPassword) {
-        alert('Las nuevas contraseñas no coinciden.');
-        return;
+        setProfileName(userData.name);
+        setProfileEmail(userData.email);
+        setProfileImageUrl(userData.imageUrl);
+        setPersonalData(userData.personalData);
+        setInitialProfileData(userData); // Guardar para poder cancelar la edición
+      } catch (error) {
+        console.error('Error al cargar el perfil:', error);
+        // Manejar error, quizás redirigir a login o mostrar mensaje
       }
-      // Simulate API call to change password
-      console.log('Cambiando contraseña...');
-      console.log('Contraseña Antigua:', oldPassword);
-      console.log('Nueva Contraseña:', newPassword);
-      // In a real app, you'd send oldPassword and newPassword to the backend
-      // and handle hashing and validation there.
+    };
+    fetchProfile();
+  }, []);
+
+  const handleSaveProfile = async () => {
+    try {
+      const profileDataToUpdate = {
+        nombre: profileName,
+        email: profileEmail,
+        profileImageUrl: profileImageUrl,
+        personalData: personalData,
+        oldPassword: oldPassword,
+        newPassword: newPassword,
+        confirmNewPassword: confirmNewPassword,
+      };
+
+      const response = await api.put('/auth/profile', profileDataToUpdate);
+      alert(response.data.message);
+      setIsEditingProfile(false);
+      // Actualizar initialProfileData con los nuevos datos guardados
+      setInitialProfileData({ name: profileName, email: profileEmail, imageUrl: profileImageUrl, personalData: personalData });
+    } catch (error: any) {
+      console.error('Error al actualizar el perfil:', error);
+      alert(error.response?.data?.message || 'Hubo un error al actualizar el perfil.');
+    } finally {
+      // Limpiar campos de contraseña después de intentar guardar
+      setOldPassword('');
+      setNewPassword('');
+      setConfirmNewPassword('');
     }
-
-    // In a real application, you would make API calls here:
-    // try {
-    //   await api.put('/api/user/profile', { name: profileName, email: profileEmail, imageUrl: profileImageUrl, personalData });
-    //   if (newPassword) {
-    //     await api.post('/api/user/change-password', { oldPassword, newPassword });
-    //   }
-    //   alert('Perfil actualizado exitosamente!');
-    //   setIsEditingProfile(false);
-    // } catch (error) {
-    //   console.error('Error al actualizar el perfil:', error);
-    //   alert('Hubo un error al actualizar el perfil.');
-    // }
-
-    alert('Perfil actualizado exitosamente (simulado)!');
-    setIsEditingProfile(false);
-    // Clear password fields after saving
-    setOldPassword('');
-    setNewPassword('');
-    setConfirmNewPassword('');
   };
 
   const handleCancelEdit = () => {
     setIsEditingProfile(false);
-    // Reset form fields to original profile data or last saved state
-    // For now, just clear password fields
+    // Restablecer los campos a los valores iniciales
+    setProfileName(initialProfileData.name);
+    setProfileEmail(initialProfileData.email);
+    setProfileImageUrl(initialProfileData.imageUrl);
+    setPersonalData(initialProfileData.personalData);
     setOldPassword('');
     setNewPassword('');
     setConfirmNewPassword('');
@@ -333,22 +347,28 @@ const Wellness: React.FC = () => {
         background: 'radial-gradient(circle at 100% 0%, rgba(192, 132, 252, 0.05) 0%, transparent 80%)'
       }}>
         <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
-          <div style={{
-            width: '60px',
-            height: '60px',
-            borderRadius: '50%',
-            background: 'linear-gradient(135deg, var(--color-primary), var(--color-secondary))',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            fontSize: '1.5rem',
-            fontWeight: 800,
-            color: '#050508'
-          }}>
-            DC
+          <div
+            style={{
+              width: '60px',
+              height: '60px',
+              borderRadius: '50%',
+              backgroundImage: `url(${profileImageUrl})`,
+              backgroundSize: 'cover',
+              backgroundPosition: 'center',
+              backgroundColor: 'var(--color-primary)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: '1.5rem',
+              fontWeight: 800,
+              color: '#050508',
+              border: '2px solid rgba(192, 132, 252, 0.3)'
+            }}
+          >
+            {!profileImageUrl && 'DC'}
           </div>
           <div>
-            <h3 style={{ fontSize: '1.25rem', fontWeight: 700 }}>Darwin David Cabezas Alvarez</h3>
+            <h3 style={{ fontSize: '1.25rem', fontWeight: 700 }}>{profileName}</h3>
             <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: '6px', marginTop: '2px' }}>
               <GraduationCap size={14} />
               <span>Instituto Superior Tecnológico Alberto Enríquez</span>

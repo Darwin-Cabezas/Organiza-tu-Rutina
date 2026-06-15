@@ -1,22 +1,21 @@
 const jwt = require('jsonwebtoken');
 
-module.exports = (req, res, next) => {
+const verifyToken = (req, res, next) => {
   const authHeader = req.headers['authorization'];
-  const token = authHeader && authHeader.split(' ')[1];
+  const token = authHeader && authHeader.split(' ')[1]; // Espera "Bearer TOKEN"
 
   if (!token) {
-    return res.status(401).json({ message: 'Acceso denegado. No se encontró el token de sesión.' });
+    return res.status(401).json({ message: 'Acceso denegado. No se proporcionó token.' });
   }
 
   try {
-    const verified = jwt.verify(
-      token,
-      process.env.JWT_SECRET || 'super_secret_key_organiza_tu_rutina_2026'
-    );
-    req.userId = verified.id;
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    req.userId = decoded.id; // Adjunta el ID del usuario a la solicitud
     next();
-  } catch (err) {
-    console.error('JWT Verification Error:', err.message);
-    res.status(403).json({ message: 'Sesión expirada o token inválido.' });
+  } catch (error) {
+    console.error('Error de verificación de token:', error);
+    res.status(403).json({ message: 'Token inválido o expirado.' });
   }
 };
+
+module.exports = verifyToken;
