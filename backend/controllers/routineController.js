@@ -1,5 +1,5 @@
-const Routine = require('../models/Routine');
-const Task = require('../models/Task');
+const Routine = require('../models/Rutina');
+const Task = require('../models/Tarea');
 const sequelize = require('../config/database');
 
 exports.getAllRoutines = async (req, res) => {

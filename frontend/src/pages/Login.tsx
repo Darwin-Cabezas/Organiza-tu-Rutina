@@ -26,22 +26,24 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
       if (mode === 'login') {
         const response = await api.post('/auth/login', { email, password });
         const { token, user } = response.data;
-        
+
         await Preferences.set({ key: 'auth_token', value: token });
         onLoginSuccess(user);
         navigate('/');
       } else {
-        if (!nombre) {
-          setError('El nombre es obligatorio.');
+        if (!nombre || !email || !password) {
+          setError('Todos los campos son obligatorios para el registro.');
           setLoading(false);
           return;
         }
         await api.post('/auth/register', { nombre, email, password });
+
+        // Registro exitoso: Limpiar y pasar a login
+        alert('¡Cuenta creada con éxito! Ahora puedes iniciar sesión.');
         setMode('login');
-        setError('');
+        setNombre('');
         setPassword('');
-        // Show success alert or toast
-        alert('Usuario registrado con éxito. Por favor inicia sesión.');
+        setError('');
       }
     } catch (err: any) {
       console.error(err);
@@ -100,8 +102,8 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
             {mode === 'login' ? 'Organiza tu Rutina' : 'Crea tu Cuenta'}
           </h1>
           <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
-            {mode === 'login' 
-              ? 'Gestiona tu tiempo y bienestar estudiantil' 
+            {mode === 'login'
+              ? 'Gestiona tu tiempo y bienestar estudiantil'
               : 'Empieza a planificar tu éxito académico'}
           </p>
         </div>

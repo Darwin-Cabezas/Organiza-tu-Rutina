@@ -54,6 +54,7 @@ kanban
 *   [x] **Auditoría de Interfaces (UI/UX):** Identificación de errores ortográficos ("nuew", "yorriradores", "porfil") y de consistencia lógica (días e inconsistencias de fechas del calendario).
 *   [x] **Ajuste de Cronograma:** Planificación de sprints de desarrollo en base a la separación frontend/backend (API REST).
 
+
 ### Sprint 1: Arquitectura, Backend e Interfaz Base (Completado)
 *   [x] **Inicialización del Servidor Backend:** Creación del entorno de Node.js, Express y Sequelize (ORM).
 *   [x] **Creación del Frontend:** Configuración de React (Vite) y ensamble de páginas base (Home, Wellness).

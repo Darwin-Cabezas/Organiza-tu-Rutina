@@ -9,7 +9,7 @@ const verifyToken = (req, res, next) => {
   }
 
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'super_secret_key_organiza_tu_rutina_2026');
     req.userId = decoded.id; // Adjunta el ID del usuario a la solicitud
     next();
   } catch (error) {

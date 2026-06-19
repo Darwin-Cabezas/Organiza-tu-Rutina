@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Bell, Calendar as CalendarIcon, Check, ShieldAlert, Sparkles, RefreshCw } from 'lucide-react';
 import { LocalNotifications } from '@capacitor/local-notifications';
+import { Capacitor } from '@capacitor/core';
 import api from '../services/api';
 
 // Safely import capacitor-calendar to prevent runtime crashes on web if not loaded
@@ -54,7 +55,7 @@ const Reminders: React.FC = () => {
     try {
       const response = await api.get('/routines');
       const allReminders: Reminder[] = [];
-      
+
       response.data.forEach((routine: any) => {
         if (routine.tareas) {
           routine.tareas.forEach((task: any) => {
@@ -94,7 +95,14 @@ const Reminders: React.FC = () => {
     try {
       await api.put(`/routines/tasks/${reminderId}`, { notificaciones_activas: !currentVal });
       fetchReminders();
-      
+
+      const isNative = Capacitor.isNativePlatform();
+
+      if (!isNative) {
+        showFeedback(`Notificación ${!currentVal ? 'activada' : 'desactivada'} (Simulado en Web)`);
+        return;
+      }
+
       if (!currentVal) {
         // Request Notification permission
         const permission = await LocalNotifications.requestPermissions();
@@ -106,7 +114,7 @@ const Reminders: React.FC = () => {
             const now = new Date();
             const triggerTime = new Date();
             triggerTime.setHours(hours, minutes, 0, 0);
-            
+
             if (triggerTime < now) {
               triggerTime.setDate(triggerTime.getDate() + 1);
             }
@@ -231,11 +239,11 @@ const Reminders: React.FC = () => {
             key={day.num}
             onClick={() => setSelectedDay(day.num)}
             style={{
-              background: day.num === selectedDay 
-                ? 'linear-gradient(135deg, var(--color-primary), var(--color-secondary))' 
+              background: day.num === selectedDay
+                ? 'linear-gradient(135deg, var(--color-primary), var(--color-secondary))'
                 : 'none',
-              border: day.isToday && day.num !== selectedDay 
-                ? '1.5px solid var(--color-primary)' 
+              border: day.isToday && day.num !== selectedDay
+                ? '1.5px solid var(--color-primary)'
                 : 'none',
               borderRadius: 'var(--radius-md)',
               width: '46px',
@@ -291,7 +299,7 @@ const Reminders: React.FC = () => {
       {/* Reminders List */}
       <div>
         <h3 style={{ fontSize: '1.1rem', marginBottom: '14px', fontWeight: 700 }}>Recordatorios del día</h3>
-        
+
         {loading ? (
           <p style={{ textAlign: 'center', color: 'var(--text-secondary)' }}>Cargando actividades...</p>
         ) : reminders.length > 0 ? (

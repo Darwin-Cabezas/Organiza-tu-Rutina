@@ -5,6 +5,17 @@ const bcrypt = require('bcryptjs');
 exports.register = async (req, res) => {
   try {
     const { nombre, email, password } = req.body;
+
+    // Validar si el usuario ya existe
+    const userExists = await Usuario.findOne({ where: { email } });
+    if (userExists) {
+      return res.status(400).json({ message: 'El correo electrónico ya está registrado.' });
+    }
+
+    if (!password || password.length < 6) {
+      return res.status(400).json({ message: 'La contraseña debe tener al menos 6 caracteres.' });
+    }
+
     const salt = await bcrypt.genSalt(10);
     const password_hash = await bcrypt.hash(password, salt);
 
@@ -16,6 +27,7 @@ exports.register = async (req, res) => {
 
     res.status(201).json({ message: 'Usuario registrado con éxito', userId: newUser.id });
   } catch (error) {
+    console.error('❌ ERROR CRÍTICO EN REGISTRO:', error);
     res.status(500).json({ message: 'Error en el registro', error: error.message });
   }
 };
