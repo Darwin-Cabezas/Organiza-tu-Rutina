@@ -65,15 +65,14 @@ kanban
 *   [x] **Notificaciones:** Integración de `@capacitor/local-notifications` para recordatorios.
 *   [x] **UI Dinámica:** Modal de creación y carrusel de rutinas conectado a la API.
 
-### Sprint 3: Integración, Estadísticas y Bienestar (En Progreso)
+### Sprint 3: Integración, Estadísticas y Bienestar (Completado) ✅
 *   [x] **Módulo de Estadísticas:** Visualización de progreso mediante `Recharts`.
 *   [x] **Sincronización:** Integración exitosa con el calendario nativo del dispositivo.
 *   [x] **Wellness:** Implementación de trackers de hábitos y sección de recursos informativos.
-*   [ ] **QA Final:** Validación de flujos de error y persistencia offline temporal.
+*   [x] **QA Final:** Validación de flujos de error y persistencia offline temporal.
 
 ---
 
 ## 4. Próximos Pasos Inmediatos
-1.  **Generar Build de Producción:** Ejecutar `npm run build` en el frontend y sincronizar con Capacitor (`npx cap sync`).
-2.  **Pruebas en Android Studio:** Desplegar la app en un emulador para verificar el comportamiento de los plugins nativos.
-3.  **Documentación de Usuario:** Crear una breve guía sobre cómo configurar la conexión a la base de datos MySQL local.
+1.  **Despliegue y pruebas en Android Studio:** Desplegar la app en un emulador para verificar el comportamiento de los plugins nativos (notificaciones y calendario).
+2.  **Documentación de Usuario:** Crear una breve guía sobre cómo configurar la conexión a la base de datos MySQL local.

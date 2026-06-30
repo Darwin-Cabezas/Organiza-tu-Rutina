@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Plus, Bell, Play, Clock, X, Check } from 'lucide-react';
+import { Preferences } from '@capacitor/preferences';
 import api from '../services/api';
 import { requestNotificationPermission } from '../services/notificationService';
+import { syncPendingData, setupSyncListeners } from '../services/syncService';
 
 interface Routine {
   id: number;
@@ -27,36 +29,95 @@ const Home: React.FC = () => {
         api.get('/auth/profile')
       ]);
       setRoutines(routinesRes.data);
-      setUserName(profileRes.data.nombre.split(' ')[0]);
+      const name = profileRes.data.nombre.split(' ')[0];
+      setUserName(name);
+
+      // Cache data for offline access
+      await Preferences.set({ key: 'cached_routines', value: JSON.stringify(routinesRes.data) });
+      await Preferences.set({ key: 'cached_username', value: name });
     } catch (error) {
-      console.error('Error fetching home data:', error);
-      // Fallback
-      setRoutines([
-        { id: 1, titulo: 'Mañana Productiva', color_hex: '#fad3cf', icono: '🌅', activa: true, tareas_count: 5 },
-      ]);
+      console.error('Error fetching home data, loading from cache:', error);
+      
+      // Load from local storage cache
+      const cachedRoutines = await Preferences.get({ key: 'cached_routines' });
+      const cachedUsername = await Preferences.get({ key: 'cached_username' });
+      
+      if (cachedRoutines.value) {
+        setRoutines(JSON.parse(cachedRoutines.value));
+      } else {
+        // Fallback
+        setRoutines([
+          { id: 1, titulo: 'Mañana Productiva', color_hex: '#fad3cf', icono: '🌅', activa: true, tareas_count: 5 },
+        ]);
+      }
+      
+      if (cachedUsername.value) {
+        setUserName(cachedUsername.value);
+      }
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchData();
+    const initHome = async () => {
+      // First try to sync any pending data
+      await syncPendingData();
+      await fetchData();
+    };
+    
+    initHome();
     requestNotificationPermission();
+
+    // Listen for connection status changes to automatically sync and refresh
+    const cleanupSync = setupSyncListeners(() => {
+      fetchData();
+    });
+
+    return () => {
+      cleanupSync();
+    };
   }, []);
 
   const handleCreateRoutine = async () => {
     if (!newTitle) return;
+    
+    const newRoutine = {
+      titulo: newTitle,
+      color_hex: '#c084fc',
+      icono: '📝',
+      activa: true,
+      tareas_count: 0
+    };
+
     try {
-      await api.post('/routines', {
-        titulo: newTitle,
-        color_hex: '#c084fc',
-        icono: '📝'
-      });
+      await api.post('/routines', newRoutine);
       setNewTitle('');
       setIsModalOpen(false);
       fetchData();
     } catch (error) {
-      console.error('Error creating routine:', error);
+      console.warn('Error creating routine, saving for offline sync:', error);
+      
+      // Update UI optimistically with a temporary ID
+      const tempRoutine = { ...newRoutine, id: -Date.now() };
+      const updatedRoutines = [...routines, tempRoutine];
+      setRoutines(updatedRoutines);
+      
+      // Cache the updated list
+      await Preferences.set({ key: 'cached_routines', value: JSON.stringify(updatedRoutines) });
+
+      // Save to sync queue
+      try {
+        const { value } = await Preferences.get({ key: 'pending_routines_sync' });
+        const queue = value ? JSON.parse(value) : [];
+        queue.push(newRoutine);
+        await Preferences.set({ key: 'pending_routines_sync', value: JSON.stringify(queue) });
+      } catch (err) {
+        console.error('Failed to save routine to sync queue:', err);
+      }
+
+      setNewTitle('');
+      setIsModalOpen(false);
     }
   };
 

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Bell, Calendar as CalendarIcon, Check, ShieldAlert, Sparkles, RefreshCw } from 'lucide-react';
+import { Bell, Calendar as CalendarIcon, Check, RefreshCw } from 'lucide-react';
 import { LocalNotifications } from '@capacitor/local-notifications';
 import { Capacitor } from '@capacitor/core';
 import api from '../services/api';

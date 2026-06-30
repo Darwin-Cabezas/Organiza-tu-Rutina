@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { Preferences } from '@capacitor/preferences';
 import api from './services/api';
+import { syncPendingData, setupSyncListeners } from './services/syncService';
 
 // Components
 import Layout from './components/Layout';
@@ -33,6 +34,9 @@ const App: React.FC = () => {
           const response = await api.get('/auth/profile');
           setUser(response.data);
           setIsAuthenticated(true);
+          
+          // Trigger sync on load
+          syncPendingData().catch(err => console.error('Auto-sync failed on load:', err));
         } else {
           setIsAuthenticated(false);
         }
@@ -46,9 +50,18 @@ const App: React.FC = () => {
     checkAuth();
   }, []);
 
+  // Global listener to sync whenever device goes online
+  useEffect(() => {
+    if (isAuthenticated) {
+      const cleanup = setupSyncListeners();
+      return () => cleanup();
+    }
+  }, [isAuthenticated]);
+
   const handleLoginSuccess = (userData: UserState) => {
     setUser(userData);
     setIsAuthenticated(true);
+    syncPendingData().catch(err => console.error('Sync failed after login:', err));
   };
 
   const handleLogout = () => {

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Heart, Share2, BookOpen, User, CheckCircle2, Award, ExternalLink, GraduationCap, Edit, Save, XCircle } from 'lucide-react';
+import { Heart, Share2, User, CheckCircle2, GraduationCap, Edit, Save, XCircle } from 'lucide-react';
+import { Preferences } from '@capacitor/preferences';
 import api from '../services/api';
 
 interface WellnessResource {
@@ -75,6 +76,50 @@ const Wellness: React.FC = () => {
     }
   };
 
+  const syncHabitsToBackend = async (water: boolean, stretch: boolean, sleep: boolean) => {
+    const today = new Date().toISOString().split('T')[0];
+    const completedCount = (water ? 1 : 0) + (stretch ? 1 : 0) + (sleep ? 1 : 0);
+    
+    // Save to local cache first
+    await Preferences.set({
+      key: `habits_state_${today}`,
+      value: JSON.stringify({ water, stretch, sleep })
+    });
+
+    try {
+      await api.post('/tracking', {
+        fecha: today,
+        habitos_saludables_completados: completedCount
+      });
+      console.log('Habits synced with backend successfully.');
+    } catch (err) {
+      console.warn('Failed to sync habits with backend (saving for offline sync):', err);
+      // Save pending sync state
+      await Preferences.set({
+        key: `pending_habits_sync_${today}`,
+        value: JSON.stringify({ fecha: today, count: completedCount })
+      });
+    }
+  };
+
+  const handleToggleWater = () => {
+    const nextVal = !waterChecked;
+    setWaterChecked(nextVal);
+    syncHabitsToBackend(nextVal, stretchChecked, sleepChecked);
+  };
+  
+  const handleToggleStretch = () => {
+    const nextVal = !stretchChecked;
+    setStretchChecked(nextVal);
+    syncHabitsToBackend(waterChecked, nextVal, sleepChecked);
+  };
+
+  const handleToggleSleep = () => {
+    const nextVal = !sleepChecked;
+    setSleepChecked(nextVal);
+    syncHabitsToBackend(waterChecked, stretchChecked, nextVal);
+  };
+
   useEffect(() => {
     const fetchProfile = async () => {
       try {
@@ -93,10 +138,26 @@ const Wellness: React.FC = () => {
         setInitialProfileData(userData); // Guardar para poder cancelar la edición
       } catch (error) {
         console.error('Error al cargar el perfil:', error);
-        // Manejar error, quizás redirigir a login o mostrar mensaje
       }
     };
+
+    const loadHabits = async () => {
+      const today = new Date().toISOString().split('T')[0];
+      try {
+        const { value } = await Preferences.get({ key: `habits_state_${today}` });
+        if (value) {
+          const parsed = JSON.parse(value);
+          setWaterChecked(!!parsed.water);
+          setStretchChecked(!!parsed.stretch);
+          setSleepChecked(!!parsed.sleep);
+        }
+      } catch (err) {
+        console.error('Error loading habits from preferences:', err);
+      }
+    };
+
     fetchProfile();
+    loadHabits();
   }, []);
 
   const handleSaveProfile = async () => {
@@ -166,7 +227,7 @@ const Wellness: React.FC = () => {
         <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
           {/* Habit 1 */}
           <button
-            onClick={() => setWaterChecked(!waterChecked)}
+            onClick={handleToggleWater}
             style={{
               display: 'flex',
               alignItems: 'center',
@@ -205,7 +266,7 @@ const Wellness: React.FC = () => {
 
           {/* Habit 2 */}
           <button
-            onClick={() => setStretchChecked(!stretchChecked)}
+            onClick={handleToggleStretch}
             style={{
               display: 'flex',
               alignItems: 'center',
@@ -244,7 +305,7 @@ const Wellness: React.FC = () => {
 
           {/* Habit 3 */}
           <button
-            onClick={() => setSleepChecked(!sleepChecked)}
+            onClick={handleToggleSleep}
             style={{
               display: 'flex',
               alignItems: 'center',

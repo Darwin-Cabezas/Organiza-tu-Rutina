@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { ResponsiveContainer, PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid } from 'recharts';
-import { Award, Zap, TrendingUp, CheckCircle } from 'lucide-react';
+import { Award, Zap, TrendingUp } from 'lucide-react';
 import api from '../services/api';
 
 interface DailyTracking {
@@ -59,7 +59,7 @@ const Progress: React.FC = () => {
 
   // Bar chart data formatted with corrected Spanish week names
   const dayNamesSpanish = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
-  const barData = trackingData.map((d, index) => {
+  const barData = trackingData.map((d) => {
     // Map records to week days
     const dateObj = new Date(d.fecha + 'T00:00:00');
     // Adjust week day index to start on Monday (0 is Sunday, so 1 is Monday...)
